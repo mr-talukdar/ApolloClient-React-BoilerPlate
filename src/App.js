@@ -1,25 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import { ApolloClient, InMemoryCache, ApolloProvider, HttpLink, from, } from '@apollo/client'
+import {onError} from '@apollo/client/link/error'
+import GetUsers from './components/GetUsers';
 
-function App() {
+
+const errorLink=onError(({graphqlErrors, networkError})=>{
+  if(graphqlErrors){
+    graphqlErrors.map(({messages, location, path})=>{
+      alert(`Graphql error ${messages}`);
+    });
+  }
+});
+
+const link= from([
+  errorLink,
+  new HttpLink({uri: "https://api-ap-south-1.hygraph.com/v2/cliafvfxw04lu01t4hc9aaamw/master" })
+])
+
+const client = new ApolloClient({
+  cache: new InMemoryCache(),
+  link: link
+})
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <ApolloProvider client={client}>
+      <GetUsers/>
+      <div dangerouslySetInnerHTML={{__html:`<p>sdafdafadfadf <strong>sfadfadfadfad </strong><em><strong>asadsasdasda </strong></em><a target='_blank' title=\"google.com\" href=\"https://google.com\">google.com</a></p>` }}>
+
+      </div>
+    </ApolloProvider>
+  )
 }
 
-export default App;
+export default App
